@@ -49,9 +49,12 @@ class SimpleLama:
         start_time = time.time()
 
         # 优化推理过程
-        with torch.inference_mode():  # 使用混合精度推理
+        with torch.inference_mode():
             inpainted = self.model(image, mask)
 
+        # 结束计时
+        elapsed_time = time.time() - start_time
+        print(f"Inference completed in {elapsed_time:.4f} seconds")
         # 后处理：减少 CPU 和 GPU 间的数据传输次数
         cur_res = (inpainted[0].permute(1, 2, 0).detach().cpu().numpy() * 255).astype(
             np.uint8
@@ -59,9 +62,5 @@ class SimpleLama:
 
         # 使用 PIL 优化生成
         cur_res = Image.fromarray(cur_res)
-
-        # 结束计时
-        elapsed_time = time.time() - start_time
-        print(f"Inference completed in {elapsed_time:.4f} seconds")
 
         return cur_res

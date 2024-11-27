@@ -72,10 +72,9 @@ def prepare_img_and_mask(image, mask, device, pad_out_to_modulo=8, scale_factor=
         out_image = pad_img_to_modulo(out_image, pad_out_to_modulo)
         out_mask = pad_img_to_modulo(out_mask, pad_out_to_modulo)
 
+    out_mask = (out_mask > 0) * 1
     out_image = torch.from_numpy(out_image).unsqueeze(0).to(device)
     out_mask = torch.from_numpy(out_mask).unsqueeze(0).to(device)
-
-    out_mask = (out_mask > 0) * 1
 
     return out_image, out_mask
 
