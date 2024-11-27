@@ -1,3 +1,4 @@
+import time
 import os
 import torch
 import numpy as np
@@ -32,16 +33,12 @@ class SimpleLama:
         self.device = device
 
     def __call__(self, image: Image.Image | np.ndarray, mask: Image.Image | np.ndarray):
+        # 准备输入图像和掩码
         image, mask = prepare_img_and_mask(image, mask, self.device)
+        print("Preparing input image and mask")
+        # 开始计时
+        start_time = time.time()
 
-        # with torch.inference_mode():
-        #     inpainted = self.model(image, mask)
-
-        #     cur_res = inpainted[0].permute(1, 2, 0).detach().cpu().numpy()
-        #     cur_res = np.clip(cur_res * 255, 0, 255).astype(np.uint8)
-
-        #     cur_res = Image.fromarray(cur_res)
-        #     return cur_res
         # 使用 torch.jit.optimized_execution(False) 替代 torch.no_grad()
         with torch.jit.optimized_execution(False):
             inpainted = self.model(image, mask)
@@ -50,4 +47,12 @@ class SimpleLama:
             cur_res = np.clip(cur_res * 255, 0, 255).astype(np.uint8)
 
             cur_res = Image.fromarray(cur_res)
-            return cur_res
+
+        # 结束计时
+        end_time = time.time()
+
+        # 打印耗时结果
+        elapsed_time = end_time - start_time
+        print(f"Inference completed in {elapsed_time:.4f} seconds")
+
+        return cur_res
