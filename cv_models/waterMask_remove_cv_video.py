@@ -70,7 +70,7 @@ def inpaint_image(
 
         # 动态调整修复半径（根据当前区域大小）
         area = stats[i, cv2.CC_STAT_AREA]
-        adjusted_radius = max(min(inpaint_radius + int(area**0.5 / 10), 15), 1)
+        adjusted_radius = max(min(inpaint_radius + int(np.log1p(area) / 2), 8), 1)
         print(f"修复区域 {i}，面积：{area}，修复半径：{adjusted_radius}")
 
         # 选择修复算法
@@ -132,7 +132,7 @@ if __name__ == "__main__":
 
     # 调用封装函数
     restored_image = inpaint_image(
-        input_path, mask_path, output_path, inpaint_radius=3, method="ns"
+        input_path, mask_path, output_path, inpaint_radius=1, method="telea"
     )
 
     # 可视化结果

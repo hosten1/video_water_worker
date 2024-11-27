@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 from PIL import Image
 from utils.util import prepare_img_and_mask, download_model
+import platform
 
 LAMA_MODEL_URL = os.environ.get(
     "LAMA_MODEL_URL",
@@ -30,6 +31,7 @@ class SimpleLama:
 
         # 使用 lazy 加载以节省时间
         self.model = torch.jit.load(model_path, map_location=device)
+        self.model = torch.jit.optimize_for_inference(self.model)  # 优化模型
         self.model.eval()
         self.model.to(device)
         self.device = device
@@ -47,7 +49,7 @@ class SimpleLama:
         start_time = time.time()
 
         # 优化推理过程
-        with torch.no_grad():
+        with torch.inference_mode():  # 使用混合精度推理
             inpainted = self.model(image, mask)
 
         # 后处理：减少 CPU 和 GPU 间的数据传输次数
